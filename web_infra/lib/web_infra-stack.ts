@@ -42,6 +42,7 @@ export class WebInfraStack extends cdk.Stack {
       websiteIndexDocument: 'index.html',
       websiteErrorDocument: 'error/index.html',
       enforceSSL: true,
+
     });
 
     // Deploy the files from 'html-website' to S3
