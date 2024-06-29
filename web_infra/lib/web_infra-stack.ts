@@ -7,6 +7,7 @@ import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as cloudfront_origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class WebInfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -34,16 +35,25 @@ export class WebInfraStack extends cdk.Stack {
     // Create an S3 bucket to store content
     const siteBucket = new s3.Bucket(this, 'siteBucket', {
       bucketName: siteDomain,
-      publicReadAccess: true,
+      //publicReadAccess: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+      //blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       websiteIndexDocument: 'index.html',
       websiteErrorDocument: 'error/index.html',
       enforceSSL: true,
 
     });
+
+    const s3BucketPolicy = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      principals: [new iam.AnyPrincipal()],
+      actions: ['s3:GetObject'],
+      resources: [siteBucket.bucketArn + '/*'],
+    });
+
+    siteBucket.addToResourcePolicy(s3BucketPolicy);
 
     // Deploy the files from 'html-website' to S3
 
