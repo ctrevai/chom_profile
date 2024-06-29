@@ -42,7 +42,7 @@ export class WebInfraStack extends cdk.Stack {
       accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       websiteIndexDocument: 'index.html',
       websiteErrorDocument: 'error/index.html',
-      enforceSSL: true,
+      //enforceSSL: true,
 
     });
 
