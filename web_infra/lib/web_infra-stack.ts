@@ -62,6 +62,14 @@ export class WebInfraStack extends cdk.Stack {
       destinationBucket: siteBucket,
     });
 
+    const shortTTLCachePolicy = new cloudfront.CachePolicy(this, 'ShortTTLCachePolicy', {
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.all(),
+      defaultTtl: cdk.Duration.minutes(5), // Set the default TTL to 5 minutes
+      maxTtl: cdk.Duration.minutes(10), // Set the maximum TTL to 10 minutes
+      minTtl: cdk.Duration.minutes(1), // Set the minimum TTL to 1 minute
+    });
+
+
     const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
       defaultRootObject: "index.html",
       errorResponses: [
@@ -74,9 +82,11 @@ export class WebInfraStack extends cdk.Stack {
       ],
       defaultBehavior: {
         origin: new cloudfront_origins.S3Origin(siteBucket),
-        compress: true,
+        //compress: true,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        //cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED, //normal prod setting
+        cachePolicy: shortTTLCachePolicy, //use to check website update
       },
       certificate: certificate,
       domainNames: [domainName, siteDomain],
